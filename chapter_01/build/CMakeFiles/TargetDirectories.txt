@@ -1,3 +1,0 @@
-/Users/uncled/Documents/CFiles/Ray_Tracing/in_one_weekend/RayTracing-InOneWeekend/out_put_image/build/CMakeFiles/Image.dir
-/Users/uncled/Documents/CFiles/Ray_Tracing/in_one_weekend/RayTracing-InOneWeekend/out_put_image/build/CMakeFiles/edit_cache.dir
-/Users/uncled/Documents/CFiles/Ray_Tracing/in_one_weekend/RayTracing-InOneWeekend/out_put_image/build/CMakeFiles/rebuild_cache.dir
