@@ -28,14 +28,14 @@ int main(){
     auto lower_left_corner = origin - horizontal / 2 - vertical / 2 - vec3(0, 0, focal_length);
     
     std::fstream fs;
-    fs.open("../out.ppm", std::ios::ate | std::ios::out);
+    fs.open("out.ppm", std::ios::ate | std::ios::out);
     fs << "P3\n" << WIDTH << ' ' << HEIGHT << "\n256\n";
 
-    for(int i=HEIGHT; i>=0; i--){
-        for( int j=0; j<WIDTH; j++){
+    for(int i=WIDTH; i>=0; i--){
+        for( int j=0; j<HEIGHT; j++){
             auto u = double(i) / (WIDTH - 1);
             auto v = double(j) / (HEIGHT - 1);
-            ray r(origin, lower_left_corner + u*horizontal + v * vertical - origin);
+            ray r(origin, lower_left_corner + u*vertical + v * horizontal - origin);
             color pixel_color = ray_color(r);
             WriteColor(fs, pixel_color);
         }
