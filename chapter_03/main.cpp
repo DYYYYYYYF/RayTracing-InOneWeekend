@@ -7,7 +7,7 @@
 color ray_color(const ray& r){
     vec3 unit_direction = unit_vector(r.direction());
     auto t = 0.5*(unit_direction.y() + 1.0);
-    return (1-t) * color(1.0, 1.0, 1.0) + t * color(0.5, 0.7, 1.0);
+    return (1.0-t) * color(1.0, 1.0, 1.0) + t * color(0.5, 0.7, 1.0);
 }
 
 int main(){
@@ -31,11 +31,11 @@ int main(){
     fs.open("../out.ppm", std::ios::ate | std::ios::out);
     fs << "P3\n" << WIDTH << ' ' << HEIGHT << "\n256\n";
 
-    for(int i=0; i<HEIGHT; i++){
+    for(int i=HEIGHT; i>=0; i--){
         for( int j=0; j<WIDTH; j++){
             auto u = double(i) / (WIDTH - 1);
             auto v = double(j) / (HEIGHT - 1);
-            ray r(origin, lower_left_corner + u*horizontal + v * vertical);
+            ray r(origin, lower_left_corner + u*horizontal + v * vertical - origin);
             color pixel_color = ray_color(r);
             WriteColor(fs, pixel_color);
         }
