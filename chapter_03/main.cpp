@@ -14,7 +14,7 @@ int main(){
 
     //Image
     const auto aspect_ratio = 16.0 / 9.0;
-    const int WIDTH = 400;
+    const int WIDTH = 800;
     const int HEIGHT = static_cast<int>(WIDTH / aspect_ratio);
 
     //Camera
@@ -29,13 +29,13 @@ int main(){
     
     std::fstream fs;
     fs.open("out.ppm", std::ios::ate | std::ios::out);
-    fs << "P3\n" << WIDTH << ' ' << HEIGHT << "\n256\n";
+    fs << "P3\n" << WIDTH << ' ' << HEIGHT << "\n255\n";
 
-    for(int i=WIDTH; i>=0; i--){
-        for( int j=0; j<HEIGHT; j++){
+    for( int j=HEIGHT; j>=0; j--){
+        for(int i=0; i<WIDTH; ++i){
             auto u = double(i) / (WIDTH - 1);
             auto v = double(j) / (HEIGHT - 1);
-            ray r(origin, lower_left_corner + u*vertical + v * horizontal - origin);
+            ray r(origin, lower_left_corner + v*vertical + u * horizontal - origin);
             color pixel_color = ray_color(r);
             WriteColor(fs, pixel_color);
         }

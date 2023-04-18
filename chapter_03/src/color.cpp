@@ -1,5 +1,4 @@
 #include <iostream>
-#include "vec3.h"
 #include "color.h"
 
 void WriteColor(std::ostream &out, color pixel_color){
