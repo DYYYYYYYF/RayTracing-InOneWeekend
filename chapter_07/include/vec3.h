@@ -4,6 +4,16 @@
 #include <iostream>
 #include <cmath>
 
+inline double random_double(){
+    return rand() / (RAND_MAX + 1.0);
+}
+
+inline double random_double(double min, double max){
+    return min + (max - min) * random_double();
+}
+
+
+
 class vec3{
 public:
     double e[3];
@@ -27,8 +37,14 @@ public:
     double length() const;
     double length_squared() const;
 
-    inline static vec3 random();
-    inline static vec3 random(double min, double max);    
+    inline static vec3 random(){
+        return vec3(random_double(), random_double(), random_double());
+    }
+
+    inline static vec3 random(double min, double max){
+        return vec3(random_double(min, max),random_double(min, max),random_double(min, max));
+    }
+
 };
 
 using point3 = vec3;  // 3D point
@@ -75,7 +91,24 @@ inline vec3 unit_vector(vec3 v){
     return v / v.length();
 }
 
-vec3 random_ni_unit_sphere();
+
+inline vec3 random_in_unit_sphere(){
+    while(true){
+        auto p = vec3::random(-1, 1);
+        if(p.length_squared() >= 1) continue;
+        return p;
+    }
+}
+
+inline vec3 random_unit_vector(){
+    return unit_vector(random_in_unit_sphere());
+}
+
+inline vec3 random_in_hemisphere(const vec3& normal){
+    vec3 in_unit_sphere = random_in_unit_sphere();
+    if(dot(in_unit_sphere, normal) > 0.0) return in_unit_sphere;
+    else return -in_unit_sphere;
+}
 
 #endif
 
