@@ -1,0 +1,37 @@
+[
+{
+  "directory": "/Users/uncled/Documents/CFiles/Ray_Tracing/in_one_weekend/RayTracing-InOneWeekend/chapter_07/build",
+  "command": "/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/c++  -I/Users/uncled/Documents/CFiles/Ray_Tracing/in_one_weekend/RayTracing-InOneWeekend/chapter_07/./include  -arch arm64 -isysroot /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX12.1.sdk -std=gnu++11 -o CMakeFiles/RayTracing.dir/main.cpp.o -c /Users/uncled/Documents/CFiles/Ray_Tracing/in_one_weekend/RayTracing-InOneWeekend/chapter_07/main.cpp",
+  "file": "/Users/uncled/Documents/CFiles/Ray_Tracing/in_one_weekend/RayTracing-InOneWeekend/chapter_07/main.cpp"
+},
+{
+  "directory": "/Users/uncled/Documents/CFiles/Ray_Tracing/in_one_weekend/RayTracing-InOneWeekend/chapter_07/build",
+  "command": "/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/c++  -I/Users/uncled/Documents/CFiles/Ray_Tracing/in_one_weekend/RayTracing-InOneWeekend/chapter_07/./include  -arch arm64 -isysroot /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX12.1.sdk -std=gnu++11 -o CMakeFiles/RayTracing.dir/src/camera.cpp.o -c /Users/uncled/Documents/CFiles/Ray_Tracing/in_one_weekend/RayTracing-InOneWeekend/chapter_07/src/camera.cpp",
+  "file": "/Users/uncled/Documents/CFiles/Ray_Tracing/in_one_weekend/RayTracing-InOneWeekend/chapter_07/src/camera.cpp"
+},
+{
+  "directory": "/Users/uncled/Documents/CFiles/Ray_Tracing/in_one_weekend/RayTracing-InOneWeekend/chapter_07/build",
+  "command": "/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/c++  -I/Users/uncled/Documents/CFiles/Ray_Tracing/in_one_weekend/RayTracing-InOneWeekend/chapter_07/./include  -arch arm64 -isysroot /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX12.1.sdk -std=gnu++11 -o CMakeFiles/RayTracing.dir/src/color.cpp.o -c /Users/uncled/Documents/CFiles/Ray_Tracing/in_one_weekend/RayTracing-InOneWeekend/chapter_07/src/color.cpp",
+  "file": "/Users/uncled/Documents/CFiles/Ray_Tracing/in_one_weekend/RayTracing-InOneWeekend/chapter_07/src/color.cpp"
+},
+{
+  "directory": "/Users/uncled/Documents/CFiles/Ray_Tracing/in_one_weekend/RayTracing-InOneWeekend/chapter_07/build",
+  "command": "/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/c++  -I/Users/uncled/Documents/CFiles/Ray_Tracing/in_one_weekend/RayTracing-InOneWeekend/chapter_07/./include  -arch arm64 -isysroot /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX12.1.sdk -std=gnu++11 -o CMakeFiles/RayTracing.dir/src/hittable_list.cpp.o -c /Users/uncled/Documents/CFiles/Ray_Tracing/in_one_weekend/RayTracing-InOneWeekend/chapter_07/src/hittable_list.cpp",
+  "file": "/Users/uncled/Documents/CFiles/Ray_Tracing/in_one_weekend/RayTracing-InOneWeekend/chapter_07/src/hittable_list.cpp"
+},
+{
+  "directory": "/Users/uncled/Documents/CFiles/Ray_Tracing/in_one_weekend/RayTracing-InOneWeekend/chapter_07/build",
+  "command": "/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/c++  -I/Users/uncled/Documents/CFiles/Ray_Tracing/in_one_weekend/RayTracing-InOneWeekend/chapter_07/./include  -arch arm64 -isysroot /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX12.1.sdk -std=gnu++11 -o CMakeFiles/RayTracing.dir/src/ray.cpp.o -c /Users/uncled/Documents/CFiles/Ray_Tracing/in_one_weekend/RayTracing-InOneWeekend/chapter_07/src/ray.cpp",
+  "file": "/Users/uncled/Documents/CFiles/Ray_Tracing/in_one_weekend/RayTracing-InOneWeekend/chapter_07/src/ray.cpp"
+},
+{
+  "directory": "/Users/uncled/Documents/CFiles/Ray_Tracing/in_one_weekend/RayTracing-InOneWeekend/chapter_07/build",
+  "command": "/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/c++  -I/Users/uncled/Documents/CFiles/Ray_Tracing/in_one_weekend/RayTracing-InOneWeekend/chapter_07/./include  -arch arm64 -isysroot /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX12.1.sdk -std=gnu++11 -o CMakeFiles/RayTracing.dir/src/sphere.cpp.o -c /Users/uncled/Documents/CFiles/Ray_Tracing/in_one_weekend/RayTracing-InOneWeekend/chapter_07/src/sphere.cpp",
+  "file": "/Users/uncled/Documents/CFiles/Ray_Tracing/in_one_weekend/RayTracing-InOneWeekend/chapter_07/src/sphere.cpp"
+},
+{
+  "directory": "/Users/uncled/Documents/CFiles/Ray_Tracing/in_one_weekend/RayTracing-InOneWeekend/chapter_07/build",
+  "command": "/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/c++  -I/Users/uncled/Documents/CFiles/Ray_Tracing/in_one_weekend/RayTracing-InOneWeekend/chapter_07/./include  -arch arm64 -isysroot /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX12.1.sdk -std=gnu++11 -o CMakeFiles/RayTracing.dir/src/vec3.cpp.o -c /Users/uncled/Documents/CFiles/Ray_Tracing/in_one_weekend/RayTracing-InOneWeekend/chapter_07/src/vec3.cpp",
+  "file": "/Users/uncled/Documents/CFiles/Ray_Tracing/in_one_weekend/RayTracing-InOneWeekend/chapter_07/src/vec3.cpp"
+}
+]

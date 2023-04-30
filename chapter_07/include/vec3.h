@@ -26,6 +26,9 @@ public:
 
     double length() const;
     double length_squared() const;
+
+    inline static vec3 random();
+    inline static vec3 random(double min, double max);    
 };
 
 using point3 = vec3;  // 3D point
@@ -71,4 +74,8 @@ inline vec3 cross(const vec3 &u, const vec3 &v){
 inline vec3 unit_vector(vec3 v){
     return v / v.length();
 }
+
+vec3 random_ni_unit_sphere();
+
 #endif
+
