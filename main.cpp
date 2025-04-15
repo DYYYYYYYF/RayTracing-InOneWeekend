@@ -1,3 +1,7 @@
+#if defined(_WIN32) && !defined(_DEBUG)
+#pragma comment( linker, "/subsystem:windows /entry:mainCRTStartup" )
+#endif
+
 #include "renderer.h"
 #include "sphere.h"
 #include "material.h"
