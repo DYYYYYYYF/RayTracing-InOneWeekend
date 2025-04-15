@@ -10,6 +10,10 @@
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
 
+#include <imgui.h>
+#include <imgui_impl_glfw.h>
+#include <imgui_impl_opengl3.h>
+
 #include <vector>
 #include <mutex>
 #include <atomic>
@@ -17,10 +21,15 @@
 class renderer {
 public:
 	renderer();
+	renderer(int object_count);
 	
 	renderer& init();
 	void render();
 	void close();
+
+public:
+	void render_fbo();
+	void clear_fbo();
 
 private:
 	hittable_list init_scene(int size = 11);
@@ -53,4 +62,11 @@ private:
 	GLuint shaderProgram;
 	GLuint textureID;
 	GLuint VAO, VBO, EBO;
+	GLuint FBO;
+
+	// UI properties
+	ImVec2 mainWindowSize;
+	float leftPanelWidth;
+	float rightPanelWidth;
+	float statusBarHeight;
 };

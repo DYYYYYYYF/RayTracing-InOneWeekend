@@ -1,4 +1,4 @@
-#include "renderer.h"
+ï»¿#include "renderer.h"
 #include "sphere.h"
 #include "material.h"
 
@@ -6,7 +6,7 @@
 #include <thread>
 
 static const double aspect_ratio = 16.0 / 9.0;
-static const int WIDTH = 800;
+static const int WIDTH = 1200;
 static const int HEIGHT = static_cast<int>(WIDTH / aspect_ratio);
 
 const char* vertexShaderSource =
@@ -22,109 +22,61 @@ const char* fragmentShaderSource = "\
 		uniform sampler2D screenTexture; \
 		void main() { FragColor = texture(screenTexture, TexCoord); }";
 
-// ¶¥µãÊı¾İ£¨Î»ÖÃ + ÎÆÀí×ø±ê£©
+// é¡¶ç‚¹æ•°æ®ï¼ˆä½ç½® + çº¹ç†åæ ‡ï¼‰
 float vertices[] = {
-	// Î»ÖÃ          // ÎÆÀí×ø±ê
-	-1.0f, -1.0f,   0.0f, 0.0f, // ×óÏÂ
-	 1.0f, -1.0f,   1.0f, 0.0f, // ÓÒÏÂ
-	 1.0f,  1.0f,   1.0f, 1.0f, // ÓÒÉÏ
-	-1.0f,  1.0f,   0.0f, 1.0f  // ×óÉÏ
+	// ä½ç½®          // çº¹ç†åæ ‡
+	-1.0f, -1.0f,   0.0f, 0.0f, // å·¦ä¸‹
+	 1.0f, -1.0f,   1.0f, 0.0f, // å³ä¸‹
+	 1.0f,  1.0f,   1.0f, 1.0f, // å³ä¸Š
+	-1.0f,  1.0f,   0.0f, 1.0f  // å·¦ä¸Š
 };
 
 unsigned int indices[] = {
-	// ×¢ÒâË÷Òı´Ó0¿ªÊ¼! 
-	// ´ËÀıµÄË÷Òı(0,1,2,3)¾ÍÊÇ¶¥µãÊı×éverticesµÄÏÂ±ê£¬
-	// ÕâÑù¿ÉÒÔÓÉÏÂ±ê´ú±í¶¥µã×éºÏ³É¾ØĞÎ
+	// æ³¨æ„ç´¢å¼•ä»0å¼€å§‹! 
+	// æ­¤ä¾‹çš„ç´¢å¼•(0,1,2,3)å°±æ˜¯é¡¶ç‚¹æ•°ç»„verticesçš„ä¸‹æ ‡ï¼Œ
+	// è¿™æ ·å¯ä»¥ç”±ä¸‹æ ‡ä»£è¡¨é¡¶ç‚¹ç»„åˆæˆçŸ©å½¢
 
-	0, 1, 2, // µÚÒ»¸öÈı½ÇĞÎ
+	0, 1, 2, // ç¬¬ä¸€ä¸ªä¸‰è§’å½¢
 	0, 2, 3
 };
 
 renderer::renderer() {
 	pixels = std::vector<unsigned char>(WIDTH * HEIGHT * 4);
-	Renderering = true;
-	samples_per_pixel = 250;
-	max_depth = 30;
+	Renderering = false;
+	samples_per_pixel = 100;
+	max_depth = 50;
 	camera_pos = vec3(13, 2, 3);
 	lookat = vec3(0, 0, 0);
 	worldup = vec3(0, 1, 0);
-	dist_to_focus = (camera_pos - lookat).length();
+	dist_to_focus = (camera_pos - lookat).length() / 2.0f;
 	aperture = 0.1;
 	cam = camera(20.0, aspect_ratio, camera_pos, lookat, worldup, 0.0, dist_to_focus);
 	world = init_scene();
+	leftPanelWidth = 200.0f;
+	rightPanelWidth = 220.0f;
+	statusBarHeight = 30.0f;
+	mainWindowSize = ImVec2(WIDTH + leftPanelWidth + rightPanelWidth, HEIGHT + 2 *statusBarHeight);
 }
 
-renderer& renderer::init() {
-	if (!glfwInit()) return *this;
-	glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
-	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 6);
-	glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
-	glfwSwapInterval(0);
+renderer::renderer(int object_count) {
+	pixels = std::vector<unsigned char>(WIDTH * HEIGHT * 4);
+	Renderering = false;
+	samples_per_pixel = 250;
+	max_depth = 30;
+	camera_pos = vec3(8, 2, 3);
+	lookat = vec3(0, 0, 0);
+	worldup = vec3(0, 1, 0);
+	dist_to_focus = (camera_pos - lookat).length() / 2.0f;
+	aperture = 0.1;
+	cam = camera(30.0, aspect_ratio, camera_pos, lookat, worldup, 0.0, dist_to_focus);
+	world = init_scene(object_count);
 
-	window = glfwCreateWindow(WIDTH, HEIGHT, "Ray Tracer", NULL, NULL);
-	if (!window) {
-		glfwTerminate();
-		return *this;
-	}
-
-	glfwMakeContextCurrent(window);
-
-	if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress)) {
-		std::cout << "Failed to initialize GLAD" << std::endl;
-		return *this;
-	}
-
-	GLuint vertShader;
-	vertShader = glCreateShader(GL_VERTEX_SHADER);
-	glShaderSource(vertShader, 1, &vertexShaderSource, NULL);
-	glCompileShader(vertShader);
-	GLuint fragShader;
-	fragShader = glCreateShader(GL_FRAGMENT_SHADER);
-	glShaderSource(fragShader, 1, &fragmentShaderSource, NULL);
-	glCompileShader(fragShader);
-
-	// ³õÊ¼»¯Shader
-	shaderProgram = glCreateProgram();
-	glAttachShader(shaderProgram, vertShader);
-	glAttachShader(shaderProgram, fragShader);
-	glLinkProgram(shaderProgram);
-	glUseProgram(shaderProgram);
-
-	// ³õÊ¼»¯Texture
-	glGenTextures(1, &textureID);
-	glBindTexture(GL_TEXTURE_2D, textureID);
-	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, WIDTH, HEIGHT, 0, GL_RGBA, GL_UNSIGNED_BYTE, nullptr);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-
-	// ³õÊ¼»¯ VAO/VBO
-	glGenBuffers(1, &VBO);
-	glBindBuffer(GL_ARRAY_BUFFER, VBO);
-	glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
-
-	glGenVertexArrays(1, &VAO);
-	glBindVertexArray(VAO);
-	glBindBuffer(GL_ARRAY_BUFFER, VBO);
-	glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
-
-	// Î»ÖÃÊôĞÔ
-	glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 4 * sizeof(float), (void*)0);
-	glEnableVertexAttribArray(0);
-
-	// ÎÆÀí×ø±êÊôĞÔ
-	glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 4 * sizeof(float), (void*)(2 * sizeof(float)));
-	glEnableVertexAttribArray(1);
-
-	glGenBuffers(1, &EBO);
-	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
-	glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STATIC_DRAW);
-
-	glViewport(0, 0, WIDTH, HEIGHT);
-	glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
-
-	return *this;
+	// UI
+	leftPanelWidth = 200.0f;
+	rightPanelWidth = 220.0f;
+	statusBarHeight = 30.0f;
+	mainWindowSize = ImVec2(WIDTH + leftPanelWidth + rightPanelWidth, HEIGHT + 2 * statusBarHeight);
 }
-
 
 hittable_list renderer::init_scene(int size) {
 	hittable_list world;
@@ -170,33 +122,196 @@ hittable_list renderer::init_scene(int size) {
 	return world;
 }
 
-void renderer::render() {
+renderer& renderer::init() {
+	if (!glfwInit()) return *this;
+	glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
+	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 6);
+	glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
+	glfwSwapInterval(0);
+
+	window = glfwCreateWindow((int)mainWindowSize.x, (int)mainWindowSize.y, "Ray Tracer", NULL, NULL);
+	if (!window) {
+		glfwTerminate();
+		return *this;
+	}
+
+	glfwMakeContextCurrent(window);
+
+	if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress)) {
+		std::cout << "Failed to initialize GLAD" << std::endl;
+		return *this;
+	}
+
+	GLuint vertShader;
+	vertShader = glCreateShader(GL_VERTEX_SHADER);
+	glShaderSource(vertShader, 1, &vertexShaderSource, NULL);
+	glCompileShader(vertShader);
+	GLuint fragShader;
+	fragShader = glCreateShader(GL_FRAGMENT_SHADER);
+	glShaderSource(fragShader, 1, &fragmentShaderSource, NULL);
+	glCompileShader(fragShader);
+
+	// åˆå§‹åŒ–Shader
+	shaderProgram = glCreateProgram();
+	glAttachShader(shaderProgram, vertShader);
+	glAttachShader(shaderProgram, fragShader);
+	glLinkProgram(shaderProgram);
+	glUseProgram(shaderProgram);
+
+	//åˆå§‹åŒ–FBO
+	glGenFramebuffers(1, &FBO);
+	glBindFramebuffer(GL_FRAMEBUFFER, FBO);
+
+	// åˆå§‹åŒ–Texture
+	glGenTextures(1, &textureID);
+	glBindTexture(GL_TEXTURE_2D, textureID);
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, WIDTH, HEIGHT, 0, GL_RGBA, GL_UNSIGNED_BYTE, nullptr);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, textureID, 0);
+
+	if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE) {
+		std::cerr << "Framebuffer is incomplete!" << std::endl;
+	}
+	glBindFramebuffer(GL_FRAMEBUFFER, 0);
+
+	// åˆå§‹åŒ– VAO/VBO
+	glGenBuffers(1, &VBO);
+	glBindBuffer(GL_ARRAY_BUFFER, VBO);
+	glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
+
+	glGenVertexArrays(1, &VAO);
+	glBindVertexArray(VAO);
+	glBindBuffer(GL_ARRAY_BUFFER, VBO);
+	glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
+
+	// ä½ç½®å±æ€§
+	glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 4 * sizeof(float), (void*)0);
+	glEnableVertexAttribArray(0);
+
+	// çº¹ç†åæ ‡å±æ€§
+	glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 4 * sizeof(float), (void*)(2 * sizeof(float)));
+	glEnableVertexAttribArray(1);
+
+	glGenBuffers(1, &EBO);
+	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
+	glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STATIC_DRAW);
+
+	glViewport(0, 0, WIDTH, HEIGHT);
+	glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+
+	return *this;
+}
+
+void renderer::render_fbo() {
+	if (Renderering) {
+		return;
+	}
+
+	Renderering = true;
 	int thread_count = std::thread::hardware_concurrency();
-	int section_count = HEIGHT / thread_count;
-	std::cout << "Current thread count: " << thread_count << std::endl;
+	int section_count = static_cast<int>(HEIGHT / thread_count);
+	std::cout << "Current thread count: " << thread_count << "\nsection count:" << section_count << std::endl;
 	for (int i = 0; i < thread_count; ++i) {
+		// æœ€åä¸€ä¸ªsectionå°†å‰©ä½™æ‰€æœ‰è¡Œéƒ½å†™æ»¡
+		int end_height = i == thread_count - 1 ? HEIGHT : (i + 1) * section_count;
 		render_threads.push_back(
-			std::thread(&renderer::subrender, this , 0, i * section_count, WIDTH, (i + 1) * section_count)
+			std::thread(&renderer::subrender, this, 0, i * section_count, WIDTH, end_height)
 		);
 	}
+}
+
+void renderer::clear_fbo() {
+	if (!Renderering) {
+		return;
+	}
+
+	Renderering = false;
+	for (auto& thread : render_threads) {
+		thread.join();
+	}
+
+	render_threads.clear();
+}
+
+void renderer::render() {
+//è®¾ç½®ImGuiä¸Šä¸‹æ–‡
+	IMGUI_CHECKVERSION();
+	ImGui::CreateContext();
+	ImGuiIO& io = ImGui::GetIO(); (void)io;
+
+	//è®¾ç½®é¢œè‰²é£æ ¼
+	ImGui::StyleColorsDark();
+
+	//Setup Platform/Render bindings
+	ImGui_ImplGlfw_InitForOpenGL(window, true);
+	ImGui_ImplOpenGL3_Init("#version 460");
 
 	while (!glfwWindowShouldClose(window)) {
 		if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS) {
 			glfwSetWindowShouldClose(window, true);
 		}
 
-		glClearColor(1, 1, 1, 1);
+		// Object pass
+		glBindFramebuffer(GL_FRAMEBUFFER, FBO);
+		glViewport(0, 0, WIDTH, HEIGHT);
 		glClear(GL_COLOR_BUFFER_BIT);
 
-		glUseProgram(shaderProgram);
-
-		glBindTexture(GL_TEXTURE_2D, textureID);
 		pixels_mutex.lock();
 		glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, WIDTH, HEIGHT, GL_RGBA, GL_UNSIGNED_BYTE, pixels.data());
 		pixels_mutex.unlock();
 
 		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
 		glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
+		glBindFramebuffer(GL_FRAMEBUFFER, 0);
+
+		// UI pass
+		ImGui_ImplOpenGL3_NewFrame();
+		ImGui_ImplGlfw_NewFrame();
+		ImGui::NewFrame();
+
+		ImGui::SetNextWindowPos(ImVec2(0, 0));
+		ImGui::SetNextWindowSize(ImVec2(mainWindowSize.x, statusBarHeight));
+		ImGui::Begin("StatusBar", nullptr,
+			ImGuiWindowFlags_NoMove |
+			ImGuiWindowFlags_NoResize |
+			ImGuiWindowFlags_NoTitleBar
+		);
+		ImGui::Text("FPS: %.1f", ImGui::GetIO().Framerate);
+		ImGui::End();
+
+		ImGui::SetNextWindowPos(ImVec2(0, statusBarHeight));
+		ImGui::SetNextWindowSize(ImVec2(leftPanelWidth, mainWindowSize.y - statusBarHeight));
+		ImGui::Begin("Hierarchy", nullptr, ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoTitleBar);
+		ImGui::Text("Tools bar");
+		if (ImGui::Button("Tracing FBO")) { render_fbo(); }
+		if (ImGui::Button("Clear FBO")) { clear_fbo(); }
+		ImGui::End();
+
+		ImGui::SetNextWindowPos(ImVec2(mainWindowSize.x - rightPanelWidth, statusBarHeight));
+		ImGui::SetNextWindowSize(ImVec2(rightPanelWidth, mainWindowSize.y - statusBarHeight));
+		ImGui::Begin("Inspector", nullptr, ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoTitleBar);
+		ImGui::Text("Transform");
+		float position[3] = { (float)cam.origin.x(), (float)cam.origin.y(), (float)cam.origin.z() };
+		ImGui::DragFloat3("Position", position, 0.1f);
+		ImGui::End();
+
+		ImGui::SetNextWindowPos(ImVec2(leftPanelWidth, statusBarHeight));
+		ImGui::SetNextWindowSize(ImVec2(WIDTH, HEIGHT + statusBarHeight), ImGuiCond_Once);
+		ImGui::Begin("Scene View", nullptr, ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoTitleBar);
+		ImGui::Image(
+			(ImTextureID)textureID,
+			ImVec2(WIDTH, HEIGHT),
+			ImVec2(0, 1), ImVec2(1, 0)
+		);
+		ImGui::End();
+
+		glDisable(GL_BLEND);
+		ImGui::Render();
+		glViewport(0, 0, (GLsizei)mainWindowSize.x, (GLsizei)mainWindowSize.y);
+		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+		ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
+		glEnable(GL_BLEND);
 
 		glfwSwapBuffers(window);
 		glfwPollEvents();
@@ -208,6 +323,10 @@ void renderer::close() {
 	for (auto& thread : render_threads) {
 		thread.join();
 	}
+
+	ImGui_ImplOpenGL3_Shutdown();
+	ImGui_ImplGlfw_Shutdown();
+	ImGui::DestroyContext();
 
 	glfwTerminate();
 

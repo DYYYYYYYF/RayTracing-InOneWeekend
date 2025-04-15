@@ -6,7 +6,15 @@
 
 int main()
 {
-	renderer* ray_tracer = new renderer();
+	/**
+	 0 . . . object_count
+	 .
+	 .
+	 .
+	 object_count
+	 */
+	int object_count = 3;		// 最终渲染个数为 object_count * object_count
+	renderer* ray_tracer = new renderer(object_count);
 	try
 	{
 		ray_tracer->init();
