@@ -9,7 +9,7 @@ git clone --recursive <url>
 
 在源项目基础上通过GLAD+GLFW将光线追踪绘制过程实时显示，跑满线程榨干CPU性能。
 
-![image-20250415145255173](assets\image-20250415145255173.png)
+![image-20250415145255173](assets/image-20250415145255173.png)
 
 图形库：OpenGL
 
