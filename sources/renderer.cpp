@@ -52,8 +52,8 @@ renderer::renderer() {
 	aperture = 0.1;
 	cam = camera(20.0, aspect_ratio, camera_pos, lookat, worldup, 0.0, dist_to_focus);
 	world = init_scene();
-	leftPanelWidth = 200.0f;
-	rightPanelWidth = 220.0f;
+	leftPanelWidth = 220.0f;
+	rightPanelWidth =  0.0f;
 	statusBarHeight = 30.0f;
 	mainWindowSize = ImVec2(WIDTH + leftPanelWidth + rightPanelWidth, HEIGHT + 2 *statusBarHeight);
 }
@@ -72,10 +72,10 @@ renderer::renderer(int object_count) {
 	world = init_scene(object_count);
 
 	// UI
-	leftPanelWidth = 200.0f;
-	rightPanelWidth = 220.0f;
+	leftPanelWidth = 220.0f;
+	rightPanelWidth = 0.0f;
 	statusBarHeight = 30.0f;
-	mainWindowSize = ImVec2(WIDTH + leftPanelWidth + rightPanelWidth, HEIGHT + 2 * statusBarHeight);
+	mainWindowSize = ImVec2(WIDTH + leftPanelWidth + rightPanelWidth + 20, HEIGHT + 2 * statusBarHeight);
 }
 
 hittable_list renderer::init_scene(int size) {
@@ -297,7 +297,7 @@ void renderer::render() {
 		ImGui::End();
 
 		ImGui::SetNextWindowPos(ImVec2(leftPanelWidth, statusBarHeight));
-		ImGui::SetNextWindowSize(ImVec2(WIDTH, HEIGHT + statusBarHeight), ImGuiCond_Once);
+		ImGui::SetNextWindowSize(ImVec2(WIDTH + 20, HEIGHT + statusBarHeight));
 		ImGui::Begin("Scene View", nullptr, ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoTitleBar);
 		ImGui::Image(
 			(ImTextureID)textureID,
@@ -306,8 +306,8 @@ void renderer::render() {
 		);
 		ImGui::End();
 
-		glDisable(GL_BLEND);
 		ImGui::Render();
+		glDisable(GL_BLEND);
 		glViewport(0, 0, (GLsizei)mainWindowSize.x, (GLsizei)mainWindowSize.y);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 		ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
@@ -372,12 +372,15 @@ void renderer::subrender(int start_x, int start_y, int end_x, int end_y) {
 				pixel_color += ray_color(r, world, max_depth);
 			}
 
-			for (int t = 0; t < 4; t++) {
-				int index = (j * WIDTH + i) * 4 + t;
+			int index = (j * WIDTH + i) * 4;
+			for (int t = 0; t < 3; t++) {
 				pixels_mutex.lock();
 				pixels[index] = convert_color(pixel_color[t], samples_per_pixel);
 				pixels_mutex.unlock();
+				index++;
 			}
+
+			pixels[index] = convert_color(1.0f, 1);
 		}
 	}
 
