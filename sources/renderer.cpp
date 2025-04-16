@@ -231,6 +231,10 @@ void renderer::clear_fbo() {
 		thread.join();
 	}
 
+	for (auto& pixel : pixels) {
+		pixel = 0;
+	}
+
 	render_threads.clear();
 }
 
@@ -373,6 +377,7 @@ void renderer::subrender(int start_x, int start_y, int end_x, int end_y) {
 			}
 
 			int index = (j * WIDTH + i) * 4;
+			// Color
 			for (int t = 0; t < 3; t++) {
 				pixels_mutex.lock();
 				pixels[index] = convert_color(pixel_color[t], samples_per_pixel);
@@ -380,6 +385,7 @@ void renderer::subrender(int start_x, int start_y, int end_x, int end_y) {
 				index++;
 			}
 
+			// Alpha 
 			pixels[index] = convert_color(1.0f, 1);
 		}
 	}
