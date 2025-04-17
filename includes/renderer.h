@@ -39,6 +39,7 @@ private:
 
 private:
 	// Base properties
+	float fov;
 	camera cam;
 	hittable_list world;
 	int samples_per_pixel;
@@ -47,7 +48,7 @@ private:
 	vec3 lookat;
 	vec3 worldup;
 	double dist_to_focus;
-	double aperture;
+	float aperture;
 
 	// thread properties
 	std::mutex pixels_mutex;

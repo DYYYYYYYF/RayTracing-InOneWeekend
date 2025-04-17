@@ -45,12 +45,13 @@ renderer::renderer() {
 	Renderering = false;
 	samples_per_pixel = 100;
 	max_depth = 50;
+	fov = 30.0;
 	camera_pos = vec3(13, 2, 3);
 	lookat = vec3(0, 0, 0);
 	worldup = vec3(0, 1, 0);
-	dist_to_focus = (camera_pos - lookat).length() / 2.0f;
 	aperture = 0.1;
-	cam = camera(20.0, aspect_ratio, camera_pos, lookat, worldup, 0.0, dist_to_focus);
+	dist_to_focus = (camera_pos - lookat).length() / 2.0f;
+	cam = camera(fov, aspect_ratio, camera_pos, lookat, worldup, aperture, dist_to_focus);
 	world = init_scene();
 	leftPanelWidth = 220.0f;
 	rightPanelWidth =  0.0f;
@@ -63,12 +64,13 @@ renderer::renderer(int object_count) {
 	Renderering = false;
 	samples_per_pixel = 250;
 	max_depth = 30;
+	fov = 30.0;
 	camera_pos = vec3(8, 2, 3);
 	lookat = vec3(0, 0, 0);
 	worldup = vec3(0, 1, 0);
 	dist_to_focus = (camera_pos - lookat).length() / 2.0f;
 	aperture = 0.1;
-	cam = camera(30.0, aspect_ratio, camera_pos, lookat, worldup, 0.0, dist_to_focus);
+	cam = camera(fov, aspect_ratio, camera_pos, lookat, worldup, aperture, dist_to_focus);
 	world = init_scene(object_count);
 
 	// UI
@@ -239,7 +241,7 @@ void renderer::clear_fbo() {
 }
 
 void renderer::render() {
-//设置ImGui上下文
+	//设置ImGui上下文
 	IMGUI_CHECKVERSION();
 	ImGui::CreateContext();
 	ImGuiIO& io = ImGui::GetIO(); (void)io;
@@ -285,19 +287,53 @@ void renderer::render() {
 		ImGui::End();
 
 		ImGui::SetNextWindowPos(ImVec2(0, statusBarHeight));
-		ImGui::SetNextWindowSize(ImVec2(leftPanelWidth, mainWindowSize.y - statusBarHeight));
-		ImGui::Begin("Hierarchy", nullptr, ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoTitleBar);
-		ImGui::Text("Tools bar");
-		if (ImGui::Button("Tracing FBO")) { render_fbo(); }
-		if (ImGui::Button("Clear FBO")) { clear_fbo(); }
+		ImGui::SetNextWindowSize(ImVec2(leftPanelWidth, mainWindowSize.y / 2.0));
+		ImGui::Begin("Info", nullptr, ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoTitleBar);
+		{
+			ImGui::BeginChild("Camera_Prop", ImVec2(0, 0.6f * mainWindowSize.y / 2.0), ImGuiChildFlags_Borders);
+			{
+				ImGui::Text("Camera properties");
+				bool is_modified = false;
+				float position[3] = { (float)camera_pos.x(), (float)camera_pos.y(), (float)camera_pos.z() };
+				ImGui::Text("pos:");
+				if (ImGui::InputFloat3("", position, "%.1f")) {
+					camera_pos = { position[0], position[1], position[2] };
+					is_modified = true;
+				}
+				float look_at[3] = { (float)lookat.x(), (float)lookat.y(), (float)lookat.z() };
+				ImGui::Text("look at:");
+				if (ImGui::InputFloat3("", look_at, "%.1f")) {
+					lookat = { look_at[0], look_at[1], look_at[2] };
+					is_modified = true;
+				}
+				ImGui::Text("fov:");
+				if (ImGui::InputFloat("", &fov)) { is_modified = true; }
+				ImGui::Text("aperture:");
+				if (ImGui::InputFloat("", &aperture)) { is_modified = true; }
+				if (is_modified) { cam = camera(fov, aspect_ratio, camera_pos, lookat, worldup, aperture, dist_to_focus); }
+			}
+			ImGui::EndChild();
+
+			ImGui::BeginChild("Render_Prop", ImVec2(0, 0), ImGuiChildFlags_Border);
+			{
+				ImGui::Text("Render properties");
+				ImGui::Text("samples per pixel:");
+				ImGui::InputInt("", &samples_per_pixel);
+				ImGui::Text("max depth:");
+				ImGui::InputInt("", &max_depth);
+			}
+			ImGui::EndChild();
+		}
 		ImGui::End();
 
-		ImGui::SetNextWindowPos(ImVec2(mainWindowSize.x - rightPanelWidth, statusBarHeight));
-		ImGui::SetNextWindowSize(ImVec2(rightPanelWidth, mainWindowSize.y - statusBarHeight));
-		ImGui::Begin("Inspector", nullptr, ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoTitleBar);
-		ImGui::Text("Transform");
-		float position[3] = { (float)cam.origin.x(), (float)cam.origin.y(), (float)cam.origin.z() };
-		ImGui::DragFloat3("Position", position, 0.1f);
+		ImGui::SetNextWindowPos(ImVec2(0, statusBarHeight + mainWindowSize.y / 2.0));
+		ImGui::SetNextWindowSize(ImVec2(leftPanelWidth, mainWindowSize.y / 2.0));
+		ImGui::Begin("Hierarchy", nullptr, ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoTitleBar);
+		{
+			ImGui::Text("Tools bar");
+			if (ImGui::Button("Tracing FBO")) { render_fbo(); }
+			if (ImGui::Button("Clear FBO")) { clear_fbo(); }
+		}
 		ImGui::End();
 
 		ImGui::SetNextWindowPos(ImVec2(leftPanelWidth, statusBarHeight));
