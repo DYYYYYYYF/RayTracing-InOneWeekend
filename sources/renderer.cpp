@@ -296,20 +296,20 @@ void renderer::render() {
 				bool is_modified = false;
 				float position[3] = { (float)camera_pos.x(), (float)camera_pos.y(), (float)camera_pos.z() };
 				ImGui::Text("pos:");
-				if (ImGui::InputFloat3("", position, "%.1f")) {
+				if (ImGui::InputFloat3(" ", position, "%.1f")) {
 					camera_pos = { position[0], position[1], position[2] };
 					is_modified = true;
 				}
 				float look_at[3] = { (float)lookat.x(), (float)lookat.y(), (float)lookat.z() };
 				ImGui::Text("look at:");
-				if (ImGui::InputFloat3("", look_at, "%.1f")) {
+				if (ImGui::InputFloat3("##xx", look_at, "%.1f")) {
 					lookat = { look_at[0], look_at[1], look_at[2] };
 					is_modified = true;
 				}
 				ImGui::Text("fov:");
-				if (ImGui::InputFloat("", &fov)) { is_modified = true; }
+				if (ImGui::InputFloat("  ", &fov)) { is_modified = true; }
 				ImGui::Text("aperture:");
-				if (ImGui::InputFloat("", &aperture)) { is_modified = true; }
+				if (ImGui::InputFloat("   ", &aperture)) { is_modified = true; }
 				if (is_modified) { cam = camera(fov, aspect_ratio, camera_pos, lookat, worldup, aperture, dist_to_focus); }
 			}
 			ImGui::EndChild();
@@ -318,9 +318,9 @@ void renderer::render() {
 			{
 				ImGui::Text("Render properties");
 				ImGui::Text("samples per pixel:");
-				ImGui::InputInt("", &samples_per_pixel);
+				ImGui::InputInt("    ", &samples_per_pixel);
 				ImGui::Text("max depth:");
-				ImGui::InputInt("", &max_depth);
+				ImGui::InputInt("     ", &max_depth);
 			}
 			ImGui::EndChild();
 		}
