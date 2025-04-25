@@ -6,12 +6,12 @@
 #include "camera.h"
 #include "color.h"
 #include "hittable_list.h"
+#include "../Platform/Platform.hpp"
 
 #include <glad/glad.h>
-#include <GLFW/glfw3.h>
 
 #include <imgui.h>
-#include <imgui_impl_glfw.h>
+#include <imgui_impl_win32.h>
 #include <imgui_impl_opengl3.h>
 
 #include <vector>
@@ -55,9 +55,6 @@ private:
 	std::vector<unsigned char> pixels;
 	std::atomic<bool> Renderering;
 	std::vector<std::thread> render_threads;
-
-	// GLFW properties
-	GLFWwindow* window;
 
 	// OpenGL properties
 	GLuint shaderProgram;

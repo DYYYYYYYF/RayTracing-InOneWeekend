@@ -49,7 +49,7 @@ renderer::renderer() {
 	camera_pos = vec3(13, 2, 3);
 	lookat = vec3(0, 0, 0);
 	worldup = vec3(0, 1, 0);
-	aperture = 0.1;
+	aperture = 0.1f;
 	dist_to_focus = (camera_pos - lookat).length() / 2.0f;
 	cam = camera(fov, aspect_ratio, camera_pos, lookat, worldup, aperture, dist_to_focus);
 	world = init_scene();
@@ -69,7 +69,7 @@ renderer::renderer(int object_count) {
 	lookat = vec3(0, 0, 0);
 	worldup = vec3(0, 1, 0);
 	dist_to_focus = (camera_pos - lookat).length() / 2.0f;
-	aperture = 0.1;
+	aperture = 0.1f;
 	cam = camera(fov, aspect_ratio, camera_pos, lookat, worldup, aperture, dist_to_focus);
 	world = init_scene(object_count);
 
@@ -125,21 +125,12 @@ hittable_list renderer::init_scene(int size) {
 }
 
 renderer& renderer::init() {
-	if (!glfwInit()) return *this;
-	glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
-	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 6);
-	glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
-	glfwSwapInterval(0);
+	IPlatform* Plat = Windows32::GetInstance();
+	IPlatform::PlatformInfo Info = { "Ray Tracer", 200, 200, (int)mainWindowSize.x, (int)mainWindowSize.y };
+	Plat->PlatformStartup(Info);
+	((Windows32*)Plat)->InitOpenGLContext();
 
-	window = glfwCreateWindow((int)mainWindowSize.x, (int)mainWindowSize.y, "Ray Tracer", NULL, NULL);
-	if (!window) {
-		glfwTerminate();
-		return *this;
-	}
-
-	glfwMakeContextCurrent(window);
-
-	if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress)) {
+	if (!gladLoadGL()) {
 		std::cout << "Failed to initialize GLAD" << std::endl;
 		return *this;
 	}
@@ -249,14 +240,13 @@ void renderer::render() {
 	//设置颜色风格
 	ImGui::StyleColorsDark();
 
+	IPlatform* Plat = IPlatform::GetInstance();
 	//Setup Platform/Render bindings
-	ImGui_ImplGlfw_InitForOpenGL(window, true);
+	ImGui_ImplWin32_InitForOpenGL(((Windows32*)Plat)->GetHWND());
 	ImGui_ImplOpenGL3_Init("#version 460");
-
-	while (!glfwWindowShouldClose(window)) {
-		if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS) {
-			glfwSetWindowShouldClose(window, true);
-		}
+	while (Plat->GetWindowStatus()) {
+		// Key detection
+		if (!Plat->PlatformPumpMessage()) { }
 
 		// Object pass
 		glBindFramebuffer(GL_FRAMEBUFFER, FBO);
@@ -273,7 +263,7 @@ void renderer::render() {
 
 		// UI pass
 		ImGui_ImplOpenGL3_NewFrame();
-		ImGui_ImplGlfw_NewFrame();
+		ImGui_ImplWin32_NewFrame();
 		ImGui::NewFrame();
 
 		ImGui::SetNextWindowPos(ImVec2(0, 0));
@@ -287,10 +277,10 @@ void renderer::render() {
 		ImGui::End();
 
 		ImGui::SetNextWindowPos(ImVec2(0, statusBarHeight));
-		ImGui::SetNextWindowSize(ImVec2(leftPanelWidth, mainWindowSize.y / 2.0));
+		ImGui::SetNextWindowSize(ImVec2(leftPanelWidth, mainWindowSize.y / 2.0f));
 		ImGui::Begin("Info", nullptr, ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoTitleBar);
 		{
-			ImGui::BeginChild("Camera_Prop", ImVec2(0, 0.6f * mainWindowSize.y / 2.0), ImGuiChildFlags_Borders);
+			ImGui::BeginChild("Camera_Prop", ImVec2(0, 0.6f * mainWindowSize.y / 2.0f), ImGuiChildFlags_Borders);
 			{
 				ImGui::Text("Camera properties");
 				bool is_modified = false;
@@ -326,8 +316,8 @@ void renderer::render() {
 		}
 		ImGui::End();
 
-		ImGui::SetNextWindowPos(ImVec2(0, statusBarHeight + mainWindowSize.y / 2.0));
-		ImGui::SetNextWindowSize(ImVec2(leftPanelWidth, mainWindowSize.y / 2.0));
+		ImGui::SetNextWindowPos(ImVec2(0, statusBarHeight + mainWindowSize.y / 2.0f));
+		ImGui::SetNextWindowSize(ImVec2(leftPanelWidth, mainWindowSize.y / 2.0f));
 		ImGui::Begin("Hierarchy", nullptr, ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoTitleBar);
 		{
 			ImGui::Text("Tools bar");
@@ -353,8 +343,7 @@ void renderer::render() {
 		ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
 		glEnable(GL_BLEND);
 
-		glfwSwapBuffers(window);
-		glfwPollEvents();
+		((Windows32*)Plat)->SwapBuffer();
 	}
 }
 
@@ -365,11 +354,10 @@ void renderer::close() {
 	}
 
 	ImGui_ImplOpenGL3_Shutdown();
-	ImGui_ImplGlfw_Shutdown();
+	ImGui_ImplWin32_Shutdown();
 	ImGui::DestroyContext();
 
-	glfwTerminate();
-
+	IPlatform::GetInstance()->PlatformShutdown();
 }
 
 color renderer::ray_color(ray r, const hittable& world, int depth){

@@ -17,6 +17,7 @@ int main()
 	renderer* ray_tracer = new renderer(object_count);
 	try
 	{
+
 		ray_tracer->init();
 		ray_tracer->render();
 		ray_tracer->close();
