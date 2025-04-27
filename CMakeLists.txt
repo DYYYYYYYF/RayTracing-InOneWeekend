@@ -1,7 +1,7 @@
-cmake_minimum_required (VERSION 3.8)
+ï»¿cmake_minimum_required (VERSION 3.8)
 project(RayTracer)
 
-set(CMAKE_CXX_STANDARD 20)
+set(CMAKE_CXX_STANDARD 17)
 set(EXECUTABLE_OUTPUT_PATH ${PROJECT_SOURCE_DIR}/bin)
 set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${PROJECT_SOURCE_DIR}/Library)
 
@@ -9,32 +9,32 @@ if (WIN32)
     message("-- Current environment: Windows")
     add_definitions(-D_CRT_SECURE_NO_WARNINGS)
 
-    # 1. ²éÕÒ Windows Kit Â·¾¶
-    set(WINDOWS_KIT_ROOT "$ENV{WindowsSdkDir}")  # ´Ó»·¾³±äÁ¿»ñÈ¡
+    # 1. æŸ¥æ‰¾ Windows Kit è·¯å¾„
+    set(WINDOWS_KIT_ROOT "$ENV{WindowsSdkDir}")  # ä»ç¯å¢ƒå˜é‡è·å–
     if (NOT WINDOWS_KIT_ROOT)
-        # Ä¬ÈÏÂ·¾¶£¨Èç¹û»·¾³±äÁ¿Î´ÉèÖÃ£©
+        # é»˜è®¤è·¯å¾„ï¼ˆå¦‚æœç¯å¢ƒå˜é‡æœªè®¾ç½®ï¼‰
         set(WINDOWS_KIT_ROOT "C:/Program Files (x86)/Windows Kits/10")
     endif()
 
-    # 2. ²éÕÒ×îĞÂ°æ±¾µÄ Windows SDK
+    # 2. æŸ¥æ‰¾æœ€æ–°ç‰ˆæœ¬çš„ Windows SDK
     file(GLOB SDK_VERSIONS "${WINDOWS_KIT_ROOT}/Include/*")
-    list(SORT SDK_VERSIONS)  # ÅÅĞòÕÒµ½×îĞÂ°æ±¾
+    list(SORT SDK_VERSIONS)  # æ’åºæ‰¾åˆ°æœ€æ–°ç‰ˆæœ¬
     list(REVERSE SDK_VERSIONS)
     list(GET SDK_VERSIONS 0 LATEST_SDK_VERSION)
     get_filename_component(SDK_VERSION ${LATEST_SDK_VERSION} NAME)
 
-    # 3. ÉèÖÃ DX12 Í·ÎÄ¼şºÍ¿âÂ·¾¶
+    # 3. è®¾ç½® DX12 å¤´æ–‡ä»¶å’Œåº“è·¯å¾„
     set(DX12_INCLUDE_DIRS 
         "${WINDOWS_KIT_ROOT}/Include/${SDK_VERSION}/um"
         "${WINDOWS_KIT_ROOT}/Include/${SDK_VERSION}/shared"
     )
     set(DX12_LIBRARY_DIR "${WINDOWS_KIT_ROOT}/Lib/${SDK_VERSION}/um/${CMAKE_VS_PLATFORM_NAME}")  # e.g., x64
 
-    # 4. ¼ì²é¹Ø¼üÎÄ¼şÊÇ·ñ´æÔÚ
+    # 4. æ£€æŸ¥å…³é”®æ–‡ä»¶æ˜¯å¦å­˜åœ¨
     find_file(D3D12_H d3d12.h PATHS ${DX12_INCLUDE_DIRS} REQUIRED)
     find_library(D3D12_LIB d3d12.lib PATHS ${DX12_LIBRARY_DIR} REQUIRED)
 
-    # 5. Ìí¼Óµ½ÏîÄ¿
+    # 5. æ·»åŠ åˆ°é¡¹ç›®
     include_directories(${DX12_INCLUDE_DIRS})
     link_directories(${DX12_LIBRARY_DIR})
 
@@ -58,7 +58,7 @@ endif()
 
 if(Vulkan_FOUND)
 	add_compile_definitions(-DVULKAN_ENABLED)
-	include_directories(${Vulkan_INCLUDE_DIRS})
+	target_include_directories(RayTracer PUBLIC ${Vulkan_INCLUDE_DIRS})
 	target_link_libraries(RayTracer PUBLIC Vulkan::Vulkan)
 	message("-- Vulkan enabled.")
 else()
