@@ -2,13 +2,15 @@
 
 #include "IPlatform.hpp"
 
-#if defined(DPLATFORM_WINDOWS)
+#ifdef DPLATFORM_WINDOWS
 
 #include <windows.h>
 #include <windowsx.h>
 
+#ifdef VULKAN_ENABLED
 #include <vulkan/vulkan.hpp>
 #include <vulkan/vulkan_win32.h>
+#endif
 
 class Windows32 : public IPlatform{
 public:
@@ -29,8 +31,10 @@ private:
 	HINSTANCE h_instance;
 	HWND hwnd;
 
+#ifdef VULKAN_ENABLED
 	// Vulkan handle
 	vk::SurfaceKHR surface;
+#endif
 
 	// OpenGL handle
 	HGLRC m_hRC;
