@@ -1,13 +1,9 @@
 #include "PlatformWin32.hpp"
 
 #if defined(DPLATFORM_WINDOWS)
-#include <GL/gl.h>
-#include "wglext.h"
 #include <imgui.h>
-#include <imgui_impl_win32.h>
 
 IPlatform* IPlatform::SingleInstance = new Windows32();
-PFNWGLCREATECONTEXTATTRIBSARBPROC wglCreateContextAttribsARB = nullptr;
 
 static double ClockFrequency;
 static LARGE_INTEGER StartTime;
@@ -209,6 +205,13 @@ LRESULT CALLBACK win32_process_message(HWND hwnd, UINT32 msg, WPARAM w_param, LP
 /**
  * OpenGL platform
  */
+#ifdef OPENGL_ENABLED
+#include <GL/gl.h>
+#include "wglext.h"
+#include <imgui_impl_win32.h>
+
+PFNWGLCREATECONTEXTATTRIBSARBPROC wglCreateContextAttribsARB = nullptr;
+
 bool Windows32::InitOpenGLContext() {
 	m_hDC = GetDC(hwnd);
 
@@ -261,5 +264,6 @@ bool Windows32::InitOpenGLContext() {
 
 	return true;
 }
+#endif	// OPENGL_ENABLED
 
 #endif	//DPLATFORM_WINDOWS
