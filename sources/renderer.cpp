@@ -3,7 +3,6 @@
 #include "material.h"
 
 #include <iostream>
-#include <thread>
 
 static const double aspect_ratio = 16.0 / 9.0;
 static const int WIDTH = 1200;
@@ -201,6 +200,7 @@ void renderer::render_fbo() {
 		return;
 	}
 
+	ThreadPool.Init();
 	Renderering = true;
 	int thread_count = std::thread::hardware_concurrency();
 	int section_count = static_cast<int>(HEIGHT / thread_count);
@@ -208,9 +208,7 @@ void renderer::render_fbo() {
 	for (int i = 0; i < thread_count; ++i) {
 		// 最后一个section将剩余所有行都写满
 		int end_height = i == thread_count - 1 ? HEIGHT : (i + 1) * section_count;
-		render_threads.push_back(
-			std::thread(&renderer::subrender, this, 0, i * section_count, WIDTH, end_height)
-		);
+		ThreadPool.Commit(&renderer::subrender, this, 0, i * section_count, WIDTH, end_height);
 	}
 }
 
@@ -220,15 +218,11 @@ void renderer::clear_fbo() {
 	}
 
 	Renderering = false;
-	for (auto& thread : render_threads) {
-		thread.join();
-	}
 
+	Sleep(20);
 	for (auto& pixel : pixels) {
 		pixel = 0;
 	}
-
-	render_threads.clear();
 }
 
 void renderer::render() {
@@ -349,9 +343,7 @@ void renderer::render() {
 
 void renderer::close() {
 	Renderering = false;
-	for (auto& thread : render_threads) {
-		thread.join();
-	}
+	ThreadPool.Shutdown();
 
 	ImGui_ImplOpenGL3_Shutdown();
 	ImGui_ImplWin32_Shutdown();

@@ -14,9 +14,7 @@
 #include <imgui_impl_win32.h>
 #include <imgui_impl_opengl3.h>
 
-#include <vector>
-#include <mutex>
-#include <atomic>
+#include <thread_pool.hpp>
 
 class renderer {
 public:
@@ -54,7 +52,7 @@ private:
 	std::mutex pixels_mutex;
 	std::vector<unsigned char> pixels;
 	std::atomic<bool> Renderering;
-	std::vector<std::thread> render_threads;
+	mt::ThreadPool ThreadPool;
 
 	// OpenGL properties
 	GLuint shaderProgram;
